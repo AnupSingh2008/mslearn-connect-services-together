@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -8,7 +8,8 @@ namespace privatemessagesender
 {
     class Program
     {
-        const string ServiceBusConnectionString = "";
+
+        const string ServiceBusConnectionString = "Endpoint=sb://salesteamappanup26apr2020.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=sGSTSOQyHAypKsZJw1zx5OIUsk4uWkzX/1EzFZ9StgY=";
         const string QueueName = "salesmessages";
         static IQueueClient queueClient;
 
@@ -23,26 +24,23 @@ namespace privatemessagesender
 
         static async Task SendSalesMessageAsync()
         {
-            queueClient = new QueueClient(ServiceBusConnectionString, QueueName);
-
+            // Create a Queue Client here
+queueClient = new QueueClient(ServiceBusConnectionString, QueueName);
             // Send messages.
             try
             {
+                
                 string messageBody = $"$10,000 order for bicycle parts from retailer Adventure Works.";
-                var message = new Message(Encoding.UTF8.GetBytes(messageBody));
-
-                // Write the body of the message to the console.
-                Console.WriteLine($"Sending message: {messageBody}");
-
-                // Send the message to the queue.
-                await queueClient.SendAsync(message);
-
+var message = new Message(Encoding.UTF8.GetBytes(messageBody));
+Console.WriteLine($"Sending message: {messageBody}");
+await queueClient.SendAsync(message);
             }
             catch (Exception exception)
             {
                 Console.WriteLine($"{DateTime.Now} :: Exception: {exception.Message}");
             }
 
+            // Close the connection to the queue here
             await queueClient.CloseAsync();
         }
     }
