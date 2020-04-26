@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -8,7 +8,8 @@ namespace privatemessagereceiver
 {
     class Program
     {
-        const string ServiceBusConnectionString = "";
+
+        const string ServiceBusConnectionString = "Endpoint=sb://salesteamappanup26apr2020.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=sGSTSOQyHAypKsZJw1zx5OIUsk4uWkzX/1EzFZ9StgY=";
         const string QueueName = "salesmessages";
         static IQueueClient queueClient;
 
@@ -22,6 +23,7 @@ namespace privatemessagereceiver
         static async Task ReceiveSalesMessageAsync()
         {
 
+            // Create a Queue Client here
             queueClient = new QueueClient(ServiceBusConnectionString, QueueName);
 
             Console.WriteLine("======================================================");
@@ -32,36 +34,24 @@ namespace privatemessagereceiver
         
             Console.Read();
 
+            // Close the queue here
             await queueClient.CloseAsync();
 
         }
 
         static void RegisterMessageHandler()
         {
-            // Configure the message handler options in terms of exception handling, number of concurrent messages to deliver, etc.
-            var messageHandlerOptions = new MessageHandlerOptions(ExceptionReceivedHandler)
+           var messageHandlerOptions = new MessageHandlerOptions(ExceptionReceivedHandler)
             {
-                // Maximum number of concurrent calls to the callback ProcessMessagesAsync(), set to 1 for simplicity.
-                // Set it according to how many messages the application wants to process in parallel.
                 MaxConcurrentCalls = 1,
-
-                // Indicates whether the message pump should automatically complete the messages after returning from user callback.
-                // False below indicates the complete operation is handled by the user callback as in ProcessMessagesAsync().
                 AutoComplete = false
             };
-
-            // Register the message handler function
             queueClient.RegisterMessageHandler(ProcessMessagesAsync, messageHandlerOptions);
-
         }
 
         static async Task ProcessMessagesAsync(Message message, CancellationToken token)
         {
-            // Process the message.
-            Console.WriteLine($"Received message: SequenceNumber:{message.SystemProperties.SequenceNumber} Body:{Encoding.UTF8.GetString(message.Body)}");
-
-            // Complete the message so that it is not received again.
-            // This can be done only if the queue Client is created in ReceiveMode.PeekLock mode (which is the default).
+           Console.WriteLine($"Received message: SequenceNumber:{message.SystemProperties.SequenceNumber} Body:{Encoding.UTF8.GetString(message.Body)}");
             await queueClient.CompleteAsync(message.SystemProperties.LockToken);
         }
 
